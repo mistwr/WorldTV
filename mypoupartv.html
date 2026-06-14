@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#03070f">
+<title>MyPoupar TV</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root{
+  --bg:#03070f;
+  --s1:#060d1a;
+  --s2:#091223;
+  --card:#0b1628;
+  --border:#142036;
+  --border2:#1a2e4a;
+  --a:#0ea5e9;       /* sky blue — MyPoupar brand */
+  --a2:#38bdf8;
+  --a3:#7dd3fc;
+  --glow:rgba(14,165,233,.3);
+  --live:#f43f5e;
+  --live2:#fb7185;
+  --green:#10b981;
+  --amber:#f59e0b;
+  --text:#e8f4fd;
+  --sub:#7ea8c9;
+  --muted:#2d4a66;
+  --r:12px;
+  --topH:54px;
+  --botH:60px; /* mobile bottom nav */
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{height:100%;overflow:hidden;}
+body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;display:flex;flex-direction:column;overflow:hidden;position:fixed;width:100%;}
+
+/* ════════════════════════════
+   TOPBAR
+════════════════════════════ */
+#topbar{
+  flex-shrink:0;height:var(--topH);
+  background:rgba(3,7,15,.96);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+  padding:0 12px;z-index:300;
+}
+
+.logo{display:flex;align-items:center;gap:9px;flex-shrink:0;text-decoration:none;}
+.logo-mark{
+  width:32px;height:32px;flex-shrink:0;
+  background:linear-gradient(135deg,#0369a1,var(--a));
+  border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 14px var(--glow);
+  position:relative;overflow:hidden;
+}
+.logo-mark::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);}
+.logo-mark svg{width:18px;height:18px;fill:#fff;position:relative;z-index:1;}
+.logo-text{font-family:'Syne',sans-serif;font-weight:900;font-size:17px;letter-spacing:-.5px;white-space:nowrap;line-height:1;}
+.logo-text em{font-style:normal;color:var(--a2);}
+
+/* hide logo text on very small screens */
+@media(max-width:360px){.logo-text{display:none;}}
+
+.vl{width:1px;height:22px;background:var(--border);flex-shrink:0;}
+
+/* COUNTRY */
+#coBtn{
+  display:flex;align-items:center;gap:6px;
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:8px;padding:5px 10px;cursor:pointer;
+  color:var(--text);font-family:'Inter',sans-serif;
+  font-size:12px;font-weight:600;transition:all .15s;
+  min-width:0;flex-shrink:0;max-width:140px;
+}
+#coBtn:hover,#coBtn:active{border-color:var(--a);background:var(--s2);}
+#cflag{font-size:15px;flex-shrink:0;line-height:1;}
+#cname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* SEARCH */
+#sw{flex:1;position:relative;min-width:0;}
+#sw svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;flex-shrink:0;}
+#srch{
+  width:100%;background:var(--s1);
+  border:1px solid var(--border);border-radius:8px;
+  color:var(--text);font-family:'Inter',sans-serif;
+  font-size:13px;padding:7px 10px 7px 30px;
+  outline:none;transition:border-color .15s;
+}
+#srch:focus{border-color:var(--a);}
+#srch::placeholder{color:var(--muted);}
+
+/* CAST btn — desktop only */
+#castBtn{
+  display:flex;align-items:center;gap:5px;
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:8px;padding:6px 10px;cursor:pointer;
+  color:var(--sub);font-family:'Inter',sans-serif;
+  font-size:11px;font-weight:600;transition:all .15s;
+  flex-shrink:0;white-space:nowrap;
+}
+#castBtn:hover{border-color:var(--a);color:var(--text);}
+#castBtn.on{border-color:var(--a);color:var(--a2);background:rgba(14,165,233,.1);}
+
+.livepill{
+  display:flex;align-items:center;gap:4px;
+  background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.2);
+  color:var(--live2);font-size:9px;font-weight:700;
+  letter-spacing:1.2px;padding:4px 8px;border-radius:20px;
+  font-family:'JetBrains Mono',monospace;flex-shrink:0;
+}
+.dot{width:5px;height:5px;border-radius:50%;background:currentColor;animation:blink 1.4s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+/* ════════════════════════════
+   LAYOUT
+════════════════════════════ */
+#layout{flex:1;display:flex;overflow:hidden;min-height:0;}
+
+/* ════════════════════════════
+   SIDEBAR — desktop only
+════════════════════════════ */
+#sidebar{
+  width:190px;flex-shrink:0;
+  background:var(--s1);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.sblabel{
+  font-family:'JetBrains Mono',monospace;
+  font-size:8px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--muted);
+  padding:14px 12px 5px;
+}
+#catList{flex:1;overflow-y:auto;padding:4px 6px 8px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.ci{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:8px;cursor:pointer;
+  font-size:12px;font-weight:500;color:var(--sub);
+  transition:all .12s;border:1px solid transparent;
+  white-space:nowrap;overflow:hidden;
+}
+.ci:hover,.ci:active{background:var(--s2);color:var(--text);}
+.ci.active{background:rgba(14,165,233,.12);border-color:rgba(14,165,233,.25);color:var(--a2);}
+.ci .ico{font-size:13px;flex-shrink:0;}
+.ci .cnt{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);flex-shrink:0;}
+
+/* ════════════════════════════
+   CONTENT
+════════════════════════════ */
+#content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+
+/* ════════════════════════════
+   PLAYER
+════════════════════════════ */
+#playerBar{
+  flex-shrink:0;background:#000;
+  border-bottom:1px solid var(--border);
+  overflow:hidden;position:relative;
+  transition:height .3s cubic-bezier(.4,0,.2,1);
+}
+#playerBar.hidden{height:0;}
+#playerBar.visible{height:min(44vw,270px);}
+
+#vid{width:100%;height:100%;object-fit:contain;background:#000;display:block;}
+
+#errOvl{
+  position:absolute;inset:0;
+  background:rgba(3,7,15,.92);
+  display:none;align-items:center;justify-content:center;
+  flex-direction:column;gap:8px;
+}
+#errOvl.show{display:flex;}
+#errOvl p{font-size:12px;color:var(--sub);text-align:center;}
+
+#povl{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(transparent,rgba(3,7,15,.94));
+  padding:22px 12px 8px;
+  display:flex;align-items:center;justify-content:space-between;
+  opacity:0;transition:opacity .2s;
+}
+#playerBar:hover #povl,#playerBar.touch-active #povl{opacity:1;}
+#nowTxt{font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px;flex:1;min-width:0;}
+#nowN{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.plA{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.plBtn{
+  background:rgba(255,255,255,.1);border:none;
+  color:#fff;height:26px;padding:0 9px;
+  border-radius:6px;cursor:pointer;font-size:10px;
+  font-weight:600;display:flex;align-items:center;gap:4px;
+  transition:background .12s;white-space:nowrap;
+  font-family:'Inter',sans-serif;
+}
+.plBtn:hover,.plBtn:active{background:rgba(255,255,255,.2);}
+.plBtn.blue{background:rgba(14,165,233,.5);}
+.plBtn.blue:hover{background:rgba(14,165,233,.75);}
+.plBtn.red{background:rgba(244,63,94,.3);}
+.plBtn.red:hover{background:rgba(244,63,94,.55);}
+
+/* ════════════════════════════
+   CHANNEL AREA
+════════════════════════════ */
+#chArea{
+  flex:1;overflow-y:auto;
+  padding:10px 10px 70px; /* bottom pad for mobile nav */
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* Status bar */
+#statBar{
+  display:flex;align-items:center;gap:5px;
+  margin-bottom:10px;flex-wrap:wrap;min-height:22px;
+}
+.stag{
+  font-family:'JetBrains Mono',monospace;
+  font-size:8px;letter-spacing:.5px;
+  color:var(--muted);background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:4px;padding:3px 6px;white-space:nowrap;
+}
+.stag.ok{border-color:rgba(16,185,129,.3);color:var(--green);}
+.stag.loading{border-color:rgba(14,165,233,.3);color:var(--a2);animation:fpulse .9s infinite;}
+.stag.fail{border-color:rgba(244,63,94,.2);color:#f43f5e;}
+@keyframes fpulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+#chCount{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--sub);white-space:nowrap;}
+
+/* PROGRESS BAR */
+#progWrap{margin-bottom:10px;display:none;}
+#progWrap.show{display:block;}
+.progLabel{font-size:11px;color:var(--sub);margin-bottom:5px;display:flex;justify-content:space-between;}
+.progTrack{height:3px;background:var(--border2);border-radius:2px;overflow:hidden;}
+.progFill{height:100%;background:linear-gradient(90deg,var(--a),var(--a2));border-radius:2px;transition:width .4s;}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+  gap:8px;
+}
+
+.chCard{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;cursor:pointer;
+  transition:border-color .16s,transform .16s,box-shadow .16s;
+  position:relative;-webkit-user-select:none;user-select:none;
+}
+.chCard:hover{border-color:var(--a);transform:translateY(-2px);box-shadow:0 6px 20px var(--glow);}
+.chCard:active{transform:scale(.97);}
+.chCard.playing{border-color:var(--a2);box-shadow:0 0 0 1px var(--a2),0 6px 20px var(--glow);}
+
+.thumb{
+  aspect-ratio:16/9;background:var(--s2);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.thumb img{width:58%;height:58%;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.7));}
+.fb{font-size:9px;font-weight:700;color:var(--muted);text-align:center;padding:6px;line-height:1.4;}
+.ltag{
+  position:absolute;top:5px;right:5px;
+  background:rgba(244,63,94,.85);color:#fff;
+  font-size:7px;font-weight:700;letter-spacing:.8px;
+  padding:2px 5px;border-radius:3px;
+  font-family:'JetBrains Mono',monospace;
+}
+.phov{
+  position:absolute;inset:0;
+  background:rgba(14,165,233,.55);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;opacity:0;transition:opacity .16s;
+}
+.chCard:hover .phov{opacity:1;}
+.chInfo{padding:6px 8px 8px;}
+.chName{font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
+.chGrp{font-size:8px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* States */
+.sbox{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:50px 20px;color:var(--muted);grid-column:1/-1;text-align:center;}
+.sbox .ico{font-size:36px;}
+.sbox p{font-size:13px;line-height:1.6;max-width:220px;}
+.sbox small{font-size:11px;color:var(--muted);opacity:.7;}
+.spin{width:22px;height:22px;border:2px solid var(--border2);border-top-color:var(--a);border-radius:50%;animation:spin .75s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ════════════════════════════
+   MOBILE BOTTOM NAV
+════════════════════════════ */
+#botNav{
+  display:none;
+  flex-shrink:0;height:var(--botH);
+  background:rgba(3,7,15,.97);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  padding:0 4px;
+  align-items:center;justify-content:space-around;
+  z-index:300;
+}
+.bnBtn{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:8px 16px;border-radius:10px;cursor:pointer;
+  background:none;border:none;color:var(--muted);
+  font-family:'Inter',sans-serif;font-size:9px;font-weight:600;
+  letter-spacing:.3px;transition:color .15s;
+  flex:1;text-align:center;
+}
+.bnBtn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;}
+.bnBtn.active{color:var(--a2);}
+.bnBtn:active{transform:scale(.92);}
+
+/* ════════════════════════════
+   CAST PANEL
+════════════════════════════ */
+#castPanel{
+  position:fixed;top:var(--topH);right:0;bottom:0;
+  width:min(300px,100vw);
+  background:var(--s1);border-left:1px solid var(--border);
+  z-index:250;transform:translateX(100%);
+  transition:transform .28s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+#castPanel.open{transform:translateX(0);}
+.cpH{padding:14px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.cpH h3{font-size:14px;font-weight:700;display:flex;align-items:center;gap:7px;}
+.cpX{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:all .12s;}
+.cpX:hover{background:var(--border);color:var(--text);}
+.cpBody{flex:1;overflow-y:auto;padding:12px;scrollbar-width:thin;}
+.cpSec{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:12px 0 5px;}
+.cpCard{background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:11px 12px;cursor:pointer;transition:border-color .12s;margin-bottom:6px;}
+.cpCard:hover,.cpCard:active{border-color:var(--a2);}
+.cpCard h4{font-size:12px;font-weight:700;margin-bottom:3px;}
+.cpCard p{font-size:10px;color:var(--sub);line-height:1.6;}
+.cpCard code{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--a2);background:rgba(14,165,233,.08);padding:2px 5px;border-radius:4px;word-break:break-all;display:block;margin-top:5px;}
+.cpInfo{padding:10px;background:rgba(14,165,233,.07);border:1px solid rgba(14,165,233,.18);border-radius:9px;margin-bottom:8px;}
+.cpInfo p{font-size:11px;color:var(--sub);line-height:1.6;}
+.cpNow{background:var(--card);border:1px solid var(--border2);border-radius:9px;padding:10px;margin-bottom:8px;}
+.cpNow p{font-size:10px;color:var(--muted);margin-bottom:3px;}
+.cpNow h4{font-size:12px;font-weight:600;}
+.cpNow code{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--a2);display:block;margin-top:6px;background:rgba(0,0,0,.3);padding:6px;border-radius:5px;word-break:break-all;cursor:pointer;}
+
+/* ════════════════════════════
+   COUNTRY MODAL (mobile-first)
+════════════════════════════ */
+#modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.78);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  z-index:500;align-items:flex-end;justify-content:center;
+  padding:0;
+}
+#modal.open{display:flex;}
+.mbox{
+  background:var(--s1);
+  border:1px solid var(--border2);
+  border-radius:18px 18px 0 0;
+  width:100%;max-width:560px;
+  max-height:88vh;
+  display:flex;flex-direction:column;overflow:hidden;
+  animation:slideUp .25s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.mPull{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:10px auto 0;}
+.mhead{padding:12px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.mhead h2{font-size:15px;font-weight:700;}
+.mclose{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;}
+.mclose:hover{background:var(--border);}
+#msrch{
+  margin:10px 12px;background:var(--s2);border:1px solid var(--border);
+  border-radius:9px;color:var(--text);font-family:'Inter',sans-serif;
+  font-size:13px;padding:9px 13px;outline:none;
+  transition:border-color .15s;display:block;width:calc(100% - 24px);
+}
+#msrch:focus{border-color:var(--a);}
+#msrch::placeholder{color:var(--muted);}
+#cList{
+  flex:1;overflow-y:auto;
+  padding:4px 10px 20px;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+  display:grid;grid-template-columns:1fr 1fr;gap:3px;align-content:start;
+  -webkit-overflow-scrolling:touch;
+}
+.coOpt{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;transition:background .1s;border:1px solid transparent;}
+.coOpt:hover,.coOpt:active{background:var(--s2);}
+.coOpt.sel{background:rgba(14,165,233,.12);border-color:rgba(14,165,233,.3);color:var(--a2);}
+.coOpt .fl{font-size:18px;flex-shrink:0;}
+.coOpt .cn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;}
+
+/* ════════════════════════════
+   MOBILE CAT STRIP (shown instead of sidebar)
+════════════════════════════ */
+#catStrip{
+  display:none;
+  flex-shrink:0;
+  overflow-x:auto;
+  padding:8px 10px 6px;
+  gap:6px;
+  scrollbar-width:none;
+  border-bottom:1px solid var(--border);
+  background:var(--s1);
+}
+#catStrip::-webkit-scrollbar{display:none;}
+.csBtn{
+  display:flex;align-items:center;gap:5px;
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:20px;padding:5px 12px;cursor:pointer;
+  font-size:11px;font-weight:600;color:var(--sub);
+  white-space:nowrap;transition:all .12s;flex-shrink:0;
+}
+.csBtn.active{background:rgba(14,165,233,.15);border-color:rgba(14,165,233,.35);color:var(--a2);}
+.csBtn:active{transform:scale(.95);}
+
+/* ════════════════════════════
+   TOAST
+════════════════════════════ */
+#toast{
+  position:fixed;bottom:76px;left:50%;
+  transform:translateX(-50%) translateY(70px);
+  background:var(--s1);border:1px solid var(--border2);
+  border-radius:10px;padding:9px 16px;
+  font-size:12px;font-weight:500;z-index:900;
+  transition:transform .28s cubic-bezier(.34,1.56,.64,1);
+  white-space:nowrap;pointer-events:none;
+}
+#toast.show{transform:translateX(-50%) translateY(0);}
+#toast.ok{border-color:rgba(16,185,129,.4);color:var(--green);}
+#toast.err{border-color:rgba(244,63,94,.3);color:#f43f5e;}
+
+/* ════════════════════════════
+   RESPONSIVE BREAKPOINTS
+════════════════════════════ */
+@media(max-width:700px){
+  #sidebar{display:none;}
+  #catStrip{display:flex;}
+  #botNav{display:flex;}
+  #chArea{padding-bottom:80px;}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:7px;}
+  #castBtn{display:none;}
+  #modal{align-items:flex-end;}
+  #playerBar.visible{height:min(56vw,240px);}
+  #toast{bottom:72px;}
+  .logo-text{font-size:15px;}
+}
+@media(min-width:701px){
+  #chArea{padding-bottom:14px;}
+  #castPanel{top:var(--topH);}
+}
+@media(max-width:400px){
+  .grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px;}
+  #coBtn{max-width:110px;font-size:11px;}
+  .logo-text{font-size:14px;}
+}
+@media(min-width:1100px){
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ TOPBAR ══ -->
+<div id="topbar">
+  <a class="logo" href="#">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M2 8.5A12.5 12.5 0 0 1 14.5 21M2 4.1A16.9 16.9 0 0 1 19 21M2 13A8 8 0 0 1 10 21"/><rect x="2" y="19" width="4" height="2" rx="1" fill="white"/></svg>
+    </div>
+    <div class="logo-text">MyPoupar<em>TV</em></div>
+  </a>
+  <div class="vl"></div>
+  <button id="coBtn" onclick="openModal()">
+    <span id="cflag">🌍</span><span id="cname">País</span>
+  </button>
+  <div id="sw">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="srch" type="text" placeholder="Pesquisar canal..." oninput="onSearch()" autocomplete="off" autocorrect="off" spellcheck="false">
+  </div>
+  <button id="castBtn" onclick="toggleCast()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 8.5A12.5 12.5 0 0 1 14.5 21"/><path d="M2 4.1A16.9 16.9 0 0 1 19 21"/><path d="M2 13A8 8 0 0 1 10 21"/><rect x="2" y="19" width="4" height="2" rx="1"/></svg>
+    TV
+  </button>
+  <div class="livepill"><div class="dot"></div>LIVE</div>
+</div>
+
+<!-- ══ LAYOUT ══ -->
+<div id="layout">
+
+  <!-- SIDEBAR desktop -->
+  <div id="sidebar">
+    <div class="sblabel">Categorias</div>
+    <div id="catList"></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content">
+
+    <!-- CAT STRIP mobile -->
+    <div id="catStrip" id="catStrip"></div>
+
+    <!-- PLAYER -->
+    <div id="playerBar" class="hidden">
+      <video id="vid" controls playsinline webkit-playsinline crossorigin="anonymous"></video>
+      <div id="errOvl">
+        <span style="font-size:28px">📡</span>
+        <p>A saltar para próximo canal…</p>
+      </div>
+      <div id="povl">
+        <div id="nowTxt"><div class="dot" style="color:var(--live2)"></div><span id="nowN">—</span></div>
+        <div class="plA">
+          <button class="plBtn blue" onclick="toggleCast()">📺 TV</button>
+          <button class="plBtn" onclick="doFullscreen()">⛶</button>
+          <button class="plBtn red" onclick="closePl()">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHANNELS -->
+    <div id="chArea">
+      <div id="statBar"></div>
+      <div id="progWrap">
+        <div class="progLabel"><span id="progTxt">A verificar streams…</span><span id="progPct">0%</span></div>
+        <div class="progTrack"><div class="progFill" id="progFill" style="width:0%"></div></div>
+      </div>
+      <div class="grid" id="grid">
+        <div class="sbox"><div class="spin"></div><p>A detetar a tua localização…</p></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CAST PANEL -->
+  <div id="castPanel">
+    <div class="cpH">
+      <h3>📺 Enviar para TV</h3>
+      <button class="cpX" onclick="toggleCast()">✕</button>
+    </div>
+    <div class="cpBody">
+      <div class="cpNow" id="cpNow" style="display:none">
+        <p>A reproduzir</p>
+        <h4 id="cpNowName">—</h4>
+        <code id="cpUrl" onclick="copyUrl()" title="Clica para copiar">—</code>
+      </div>
+      <div class="cpInfo">
+        <p>Escolhe como enviar para a TV. Não precisas de instalar nada extra.</p>
+      </div>
+      <div class="cpSec">Nativo no browser</div>
+      <div class="cpCard" onclick="tryChromecast()">
+        <h4>🎯 Google Chromecast</h4>
+        <p>Chrome → Menu → Transmitir… ou clica no ícone cast no vídeo.</p>
+      </div>
+      <div class="cpCard" onclick="tryAirplay()">
+        <h4>🍎 AirPlay (Apple TV / Smart TV)</h4>
+        <p>Em Safari: clica no ícone AirPlay no player.</p>
+      </div>
+      <div class="cpSec">Apps externas</div>
+      <div class="cpCard" onclick="openVLC()">
+        <h4>🎬 VLC Media Player</h4>
+        <p>Abre o stream diretamente no VLC da tua rede local.</p>
+      </div>
+      <div class="cpCard" onclick="copyUrl()">
+        <h4>📱 IPTV Smarters / TiviMate</h4>
+        <p>Copia o URL e adiciona em qualquer player IPTV.</p>
+      </div>
+      <div class="cpSec">Link direto</div>
+      <div class="cpCard" onclick="copyUrl()">
+        <h4>🔗 Copiar URL do stream</h4>
+        <p>Para Smart TV, Kodi, Plex ou VLC:</p>
+        <code id="urlDisp">Seleciona um canal primeiro</code>
+      </div>
+      <div class="cpSec">Lista M3U completa</div>
+      <div class="cpCard" onclick="copyM3U()">
+        <h4>📡 Lista do país atual</h4>
+        <p>Adiciona na Smart TV ou Kodi:</p>
+        <code id="m3uDisp">—</code>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ MOBILE BOTTOM NAV ══ -->
+<div id="botNav">
+  <button class="bnBtn active" id="bnCanais" onclick="mobileTab('canais')">
+    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+    Canais
+  </button>
+  <button class="bnBtn" id="bnPais" onclick="openModal()">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    País
+  </button>
+  <button class="bnBtn" id="bnTV" onclick="toggleCast()">
+    <svg viewBox="0 0 24 24"><path d="M2 8.5A12.5 12.5 0 0 1 14.5 21"/><path d="M2 4.1A16.9 16.9 0 0 1 19 21"/><path d="M2 13A8 8 0 0 1 10 21"/><rect x="2" y="19" width="4" height="2" rx="1"/></svg>
+    Enviar TV
+  </button>
+</div>
+
+<!-- ══ COUNTRY MODAL ══ -->
+<div id="modal">
+  <div class="mbox">
+    <div class="mPull"></div>
+    <div class="mhead"><h2>🌍 Escolher País</h2><button class="mclose" onclick="closeModal()">✕</button></div>
+    <input id="msrch" type="text" placeholder="Pesquisar país…" oninput="filterCo()" autocomplete="off">
+    <div id="cList"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════
+// COUNTRIES
+// ═══════════════════════
+const CO=[
+  {c:'pt',f:'🇵🇹',en:'Portugal',pt:'Portugal'},
+  {c:'br',f:'🇧🇷',en:'Brazil',pt:'Brasil'},
+  {c:'es',f:'🇪🇸',en:'Spain',pt:'Espanha'},
+  {c:'fr',f:'🇫🇷',en:'France',pt:'França'},
+  {c:'de',f:'🇩🇪',en:'Germany',pt:'Alemanha'},
+  {c:'it',f:'🇮🇹',en:'Italy',pt:'Itália'},
+  {c:'gb',f:'🇬🇧',en:'United Kingdom',pt:'Reino Unido'},
+  {c:'us',f:'🇺🇸',en:'United States',pt:'Estados Unidos'},
+  {c:'ca',f:'🇨🇦',en:'Canada',pt:'Canadá'},
+  {c:'au',f:'🇦🇺',en:'Australia',pt:'Austrália'},
+  {c:'nl',f:'🇳🇱',en:'Netherlands',pt:'Países Baixos'},
+  {c:'be',f:'🇧🇪',en:'Belgium',pt:'Bélgica'},
+  {c:'ch',f:'🇨🇭',en:'Switzerland',pt:'Suíça'},
+  {c:'at',f:'🇦🇹',en:'Austria',pt:'Áustria'},
+  {c:'pl',f:'🇵🇱',en:'Poland',pt:'Polónia'},
+  {c:'ru',f:'🇷🇺',en:'Russia',pt:'Rússia'},
+  {c:'ua',f:'🇺🇦',en:'Ukraine',pt:'Ucrânia'},
+  {c:'tr',f:'🇹🇷',en:'Turkey',pt:'Turquia'},
+  {c:'ar',f:'🇦🇷',en:'Argentina',pt:'Argentina'},
+  {c:'mx',f:'🇲🇽',en:'Mexico',pt:'México'},
+  {c:'co',f:'🇨🇴',en:'Colombia',pt:'Colômbia'},
+  {c:'cl',f:'🇨🇱',en:'Chile',pt:'Chile'},
+  {c:'ve',f:'🇻🇪',en:'Venezuela',pt:'Venezuela'},
+  {c:'pe',f:'🇵🇪',en:'Peru',pt:'Peru'},
+  {c:'in',f:'🇮🇳',en:'India',pt:'Índia'},
+  {c:'jp',f:'🇯🇵',en:'Japan',pt:'Japão'},
+  {c:'kr',f:'🇰🇷',en:'South Korea',pt:'Coreia do Sul'},
+  {c:'cn',f:'🇨🇳',en:'China',pt:'China'},
+  {c:'th',f:'🇹🇭',en:'Thailand',pt:'Tailândia'},
+  {c:'id',f:'🇮🇩',en:'Indonesia',pt:'Indonésia'},
+  {c:'ph',f:'🇵🇭',en:'Philippines',pt:'Filipinas'},
+  {c:'vn',f:'🇻🇳',en:'Vietnam',pt:'Vietname'},
+  {c:'pk',f:'🇵🇰',en:'Pakistan',pt:'Paquistão'},
+  {c:'sa',f:'🇸🇦',en:'Saudi Arabia',pt:'Arábia Saudita'},
+  {c:'ae',f:'🇦🇪',en:'UAE',pt:'Emirados Árabes'},
+  {c:'eg',f:'🇪🇬',en:'Egypt',pt:'Egito'},
+  {c:'ma',f:'🇲🇦',en:'Morocco',pt:'Marrocos'},
+  {c:'ng',f:'🇳🇬',en:'Nigeria',pt:'Nigéria'},
+  {c:'za',f:'🇿🇦',en:'South Africa',pt:'África do Sul'},
+  {c:'gh',f:'🇬🇭',en:'Ghana',pt:'Gana'},
+  {c:'ke',f:'🇰🇪',en:'Kenya',pt:'Quénia'},
+  {c:'ao',f:'🇦🇴',en:'Angola',pt:'Angola'},
+  {c:'mz',f:'🇲🇿',en:'Mozambique',pt:'Moçambique'},
+  {c:'cv',f:'🇨🇻',en:'Cape Verde',pt:'Cabo Verde'},
+  {c:'se',f:'🇸🇪',en:'Sweden',pt:'Suécia'},
+  {c:'no',f:'🇳🇴',en:'Norway',pt:'Noruega'},
+  {c:'dk',f:'🇩🇰',en:'Denmark',pt:'Dinamarca'},
+  {c:'fi',f:'🇫🇮',en:'Finland',pt:'Finlândia'},
+  {c:'gr',f:'🇬🇷',en:'Greece',pt:'Grécia'},
+  {c:'ro',f:'🇷🇴',en:'Romania',pt:'Roménia'},
+  {c:'hu',f:'🇭🇺',en:'Hungary',pt:'Hungria'},
+  {c:'cz',f:'🇨🇿',en:'Czech Republic',pt:'República Checa'},
+  {c:'sk',f:'🇸🇰',en:'Slovakia',pt:'Eslováquia'},
+  {c:'hr',f:'🇭🇷',en:'Croatia',pt:'Croácia'},
+  {c:'rs',f:'🇷🇸',en:'Serbia',pt:'Sérvia'},
+  {c:'bg',f:'🇧🇬',en:'Bulgaria',pt:'Bulgária'},
+  {c:'il',f:'🇮🇱',en:'Israel',pt:'Israel'},
+  {c:'ir',f:'🇮🇷',en:'Iran',pt:'Irão'},
+  {c:'iq',f:'🇮🇶',en:'Iraq',pt:'Iraque'},
+  {c:'lb',f:'🇱🇧',en:'Lebanon',pt:'Líbano'},
+  {c:'my',f:'🇲🇾',en:'Malaysia',pt:'Malásia'},
+  {c:'sg',f:'🇸🇬',en:'Singapore',pt:'Singapura'},
+  {c:'tw',f:'🇹🇼',en:'Taiwan',pt:'Taiwan'},
+  {c:'hk',f:'🇭🇰',en:'Hong Kong',pt:'Hong Kong'},
+  {c:'nz',f:'🇳🇿',en:'New Zealand',pt:'Nova Zelândia'},
+  {c:'uy',f:'🇺🇾',en:'Uruguay',pt:'Uruguai'},
+  {c:'py',f:'🇵🇾',en:'Paraguay',pt:'Paraguai'},
+  {c:'bo',f:'🇧🇴',en:'Bolivia',pt:'Bolívia'},
+  {c:'ec',f:'🇪🇨',en:'Ecuador',pt:'Equador'},
+  {c:'cu',f:'🇨🇺',en:'Cuba',pt:'Cuba'},
+  {c:'do',f:'🇩🇴',en:'Dominican Republic',pt:'Rep. Dominicana'},
+  {c:'cr',f:'🇨🇷',en:'Costa Rica',pt:'Costa Rica'},
+  {c:'gt',f:'🇬🇹',en:'Guatemala',pt:'Guatemala'},
+  {c:'pa',f:'🇵🇦',en:'Panama',pt:'Panamá'},
+  {c:'ie',f:'🇮🇪',en:'Ireland',pt:'Irlanda'},
+  {c:'lu',f:'🇱🇺',en:'Luxembourg',pt:'Luxemburgo'},
+  {c:'mt',f:'🇲🇹',en:'Malta',pt:'Malta'},
+  {c:'cy',f:'🇨🇾',en:'Cyprus',pt:'Chipre'},
+  {c:'al',f:'🇦🇱',en:'Albania',pt:'Albânia'},
+  {c:'ba',f:'🇧🇦',en:'Bosnia',pt:'Bósnia'},
+  {c:'si',f:'🇸🇮',en:'Slovenia',pt:'Eslovénia'},
+  {c:'lv',f:'🇱🇻',en:'Latvia',pt:'Letónia'},
+  {c:'lt',f:'🇱🇹',en:'Lithuania',pt:'Lituânia'},
+  {c:'ee',f:'🇪🇪',en:'Estonia',pt:'Estónia'},
+  {c:'ge',f:'🇬🇪',en:'Georgia',pt:'Geórgia'},
+  {c:'am',f:'🇦🇲',en:'Armenia',pt:'Arménia'},
+  {c:'az',f:'🇦🇿',en:'Azerbaijan',pt:'Azerbaijão'},
+  {c:'kz',f:'🇰🇿',en:'Kazakhstan',pt:'Cazaquistão'},
+  {c:'bd',f:'🇧🇩',en:'Bangladesh',pt:'Bangladesh'},
+  {c:'lk',f:'🇱🇰',en:'Sri Lanka',pt:'Sri Lanka'},
+  {c:'mm',f:'🇲🇲',en:'Myanmar',pt:'Myanmar'},
+  {c:'kh',f:'🇰🇭',en:'Cambodia',pt:'Cambodja'},
+  {c:'dz',f:'🇩🇿',en:'Algeria',pt:'Argélia'},
+  {c:'tn',f:'🇹🇳',en:'Tunisia',pt:'Tunísia'},
+  {c:'sd',f:'🇸🇩',en:'Sudan',pt:'Sudão'},
+  {c:'tz',f:'🇹🇿',en:'Tanzania',pt:'Tanzânia'},
+  {c:'ug',f:'🇺🇬',en:'Uganda',pt:'Uganda'},
+  {c:'cm',f:'🇨🇲',en:'Cameroon',pt:'Camarões'},
+  {c:'cd',f:'🇨🇩',en:'DR Congo',pt:'R.D. Congo'},
+  {c:'sn',f:'🇸🇳',en:'Senegal',pt:'Senegal'},
+  {c:'jo',f:'🇯🇴',en:'Jordan',pt:'Jordânia'},
+  {c:'kw',f:'🇰🇼',en:'Kuwait',pt:'Kuwait'},
+  {c:'qa',f:'🇶🇦',en:'Qatar',pt:'Qatar'},
+  {c:'om',f:'🇴🇲',en:'Oman',pt:'Omã'},
+  {c:'et',f:'🇪🇹',en:'Ethiopia',pt:'Etiópia'},
+  {c:'gw',f:'🇬🇼',en:'Guinea-Bissau',pt:'Guiné-Bissau'},
+  {c:'st',f:'🇸🇹',en:'São Tomé',pt:'São Tomé'},
+  {c:'np',f:'🇳🇵',en:'Nepal',pt:'Nepal'},
+  {c:'ci',f:'🇨🇮',en:'Ivory Coast',pt:'Costa do Marfim'},
+  {c:'hn',f:'🇭🇳',en:'Honduras',pt:'Honduras'},
+  {c:'sv',f:'🇸🇻',en:'El Salvador',pt:'El Salvador'},
+  {c:'ni',f:'🇳🇮',en:'Nicaragua',pt:'Nicarágua'},
+  {c:'mn',f:'🇲🇳',en:'Mongolia',pt:'Mongólia'},
+];
+const seen=new Set();
+const COUNTRIES=CO.filter(x=>{if(seen.has(x.c))return false;seen.add(x.c);return true;}).sort((a,b)=>a.en.localeCompare(b.en));
+
+// ═══════════════════════
+// CATS
+// ═══════════════════════
+const CATS=[
+  {id:'all',i:'📺',en:'All',pt:'Todos'},
+  {id:'news',i:'📰',en:'News',pt:'Notícias'},
+  {id:'entertainment',i:'🎬',en:'Entertainment',pt:'Entretenimento'},
+  {id:'sport',i:'⚽',en:'Sport',pt:'Desporto'},
+  {id:'music',i:'🎵',en:'Music',pt:'Música'},
+  {id:'kids',i:'🎠',en:'Kids',pt:'Infantil'},
+  {id:'documentary',i:'🎞️',en:'Docs',pt:'Docs'},
+  {id:'cooking',i:'🍳',en:'Cooking',pt:'Culinária'},
+  {id:'religious',i:'🕊️',en:'Religious',pt:'Religioso'},
+  {id:'travel',i:'✈️',en:'Travel',pt:'Viagens'},
+];
+
+// ═══════════════════════
+// SOURCES
+// ═══════════════════════
+const PX='https://api.allorigins.win/raw?url=';
+const PX2='https://corsproxy.io/?url=';
+const GSRCS=[
+  {l:'Free-TV',u:'https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8'},
+  {l:'DistroTV',u:'https://www.apsattv.com/distro.m3u'},
+  {l:'Xiaomi',u:'https://www.apsattv.com/xiaomi.m3u'},
+  {l:'Rakuten',u:'https://www.apsattv.com/rakutentv-uk.m3u'},
+  {l:'Romaxa',u:'https://romaxa55.github.io/world_ip_tv/index.m3u'},
+];
+const CSRCS={
+  pt:[{l:'M3UPT',u:'https://raw.githubusercontent.com/LITUATUI/M3UPT/main/M3U/M3UPT.m3u'}],
+  us:[{l:'Plex',u:'https://raw.githubusercontent.com/BuddyChewChew/app-m3u-generator/refs/heads/main/playlists/plex_all.m3u'},{l:'Samsung US',u:'https://www.apsattv.com/ssungusa.m3u'},{l:'LG',u:'https://www.apsattv.com/lg.m3u'},{l:'Redbox',u:'https://www.apsattv.com/redbox.m3u'}],
+  gb:[{l:'Samsung UK',u:'https://www.apsattv.com/ssunguk.m3u'}],
+  fr:[{l:'Samsung FR',u:'https://www.apsattv.com/ssungfr.m3u'},{l:'Rakuten FR',u:'https://www.apsattv.com/rakutentv-fr.m3u'}],
+  de:[{l:'Samsung DE',u:'https://www.apsattv.com/ssungde.m3u'}],
+  it:[{l:'Samsung IT',u:'https://www.apsattv.com/ssungit.m3u'}],
+  es:[{l:'Samsung ES',u:'https://www.apsattv.com/ssunges.m3u'}],
+  br:[{l:'Samsung BR',u:'https://www.apsattv.com/ssungbr.m3u'}],
+};
+function srcsFor(c){return [{l:'IPTV-org',u:`https://iptv-org.github.io/iptv/countries/${c}.m3u`},...(CSRCS[c]||[]),...GSRCS];}
+
+// ═══════════════════════
+// STATE
+// ═══════════════════════
+let CUR=null,LANG='pt';
+let ALL=[],FILT=[];
+let CAT='all',SQ='';
+let PLAYING=-1,PFILT=-1;
+let HLS_I=null,TT=null;
+let SST={};
+let CAST=false;
+let CURL='';
+let BROKEN=new Set();
+let VABORT=false,VTOTAL=0,VPEND=0;
+
+// ═══════════════════════
+// LANG
+// ═══════════════════════
+function dLang(){const l=(navigator.language||'en').toLowerCase();LANG=l.startsWith('pt')?'pt':'en';}
+function t(o){return LANG==='pt'?o.pt:o.en;}
+function cl(co){return LANG==='pt'?co.pt:co.en;}
+
+// ═══════════════════════
+// DETECT COUNTRY
+// ═══════════════════════
+function dCountry(){
+  const l=(navigator.language||'en').toLowerCase();
+  const m={'pt-pt':'pt','pt-br':'br','pt':'pt','es':'es','fr':'fr','de':'de','it':'it','en-gb':'gb','en-us':'us','en-au':'au','en-ca':'ca','nl':'nl','pl':'pl','ru':'ru','tr':'tr','ar':'sa','zh':'cn','ja':'jp','ko':'kr','hi':'in'};
+  let g='us';for(const[k,v]of Object.entries(m)){if(l.startsWith(k)){g=v;break;}}
+  fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>setCountry((d.country_code||g).toLowerCase(),true)).catch(()=>setCountry(g,true));
+}
+
+function setCountry(code,load){
+  const f=COUNTRIES.find(x=>x.c===code)||COUNTRIES.find(x=>x.c==='us');
+  CUR=f;
+  document.getElementById('cflag').textContent=f.f;
+  document.getElementById('cname').textContent=cl(f);
+  document.getElementById('m3uDisp').textContent=`https://iptv-org.github.io/iptv/countries/${code}.m3u`;
+  if(load)loadCountry();
+}
+
+// ═══════════════════════
+// LOAD + VERIFY
+// ═══════════════════════
+function loadCountry(){
+  ALL=[];FILT=[];CAT='all';SQ='';
+  BROKEN=new Set();VABORT=true;
+  document.getElementById('srch').value='';
+  SST={};closePl();closeModal();
+  showLoading();updateStat();renderCats([]);renderCatStrip([]);
+  const srcs=srcsFor(CUR.c);
+  srcs.forEach(s=>{SST[s.l]='loading';});
+  updateStat();
+  const merged=new Map();
+  const fetches=srcs.map(src=>
+    fetchM3U(src.u).then(chs=>{
+      SST[src.l]='ok';updateStat();
+      for(const ch of chs){const k=ch.name.toLowerCase().trim();if(!merged.has(k))merged.set(k,{...ch,_s:src.l});}
+    }).catch(()=>{SST[src.l]='fail';updateStat();})
+  );
+  Promise.allSettled(fetches).then(()=>{
+    const raw=[...merged.values()];
+    if(!raw.length){
+      document.getElementById('grid').innerHTML=`<div class="sbox"><div class="ico">📭</div><p>Sem canais para este país.</p></div>`;
+      return;
+    }
+    toast(`${CUR.f} ${cl(CUR)} — A verificar ${raw.length} canais…`,'');
+    verifyStreams(raw);
+  });
+}
+
+function fetchM3U(u){
+  return fetch(PX+encodeURIComponent(u)).then(r=>{if(!r.ok)throw 0;return r.text();})
+    .catch(()=>fetch(PX2+encodeURIComponent(u)).then(r=>r.text()))
+    .then(parseM3U);
+}
+
+function parseM3U(txt){
+  const lines=txt.split('\n'),out=[];let cur=null;
+  for(const line of lines){
+    const l=line.trim();
+    if(l.startsWith('#EXTINF')){
+      cur={name:'',group:'',logo:'',url:''};
+      const nm=l.match(/,(.+)$/);if(nm)cur.name=nm[1].trim();
+      const gm=l.match(/group-title="([^"]*)"/i);if(gm)cur.group=gm[1].trim();
+      const lm=l.match(/tvg-logo="([^"]*)"/i);if(lm)cur.logo=lm[1].trim();
+    }else if(/^https?:\/\//i.test(l)&&cur){
+      cur.url=l;if(cur.name&&cur.url)out.push(cur);cur=null;
+    }
+  }
+  return out;
+}
+
+async function verifyStreams(rawList){
+  VABORT=false;ALL=[];FILT=[];VTOTAL=0;VPEND=rawList.length;
+  const pw=document.getElementById('progWrap');
+  pw.classList.add('show');
+  setProgress(0,rawList.length,0);
+
+  const BATCH=6,TMO=5000;
+
+  function testStream(ch){
+    return new Promise(resolve=>{
+      if(VABORT){resolve(false);return;}
+      const vid=document.createElement('video');
+      vid.muted=true;vid.playsInline=true;vid.style.cssText='position:fixed;width:1px;height:1px;opacity:.001;top:-100px;left:-100px;pointer-events:none;';
+      document.body.appendChild(vid);
+      let done=false;
+      const t=setTimeout(()=>fin(false),TMO);
+      function fin(ok){if(done)return;done=true;clearTimeout(t);try{vid.pause();vid.src='';vid.load();}catch(e){}vid.remove();resolve(ok);}
+      vid.oncanplay=()=>fin(true);vid.onplaying=()=>fin(true);vid.onerror=()=>fin(false);
+      const u=ch.url;
+      if(window.Hls&&Hls.isSupported()&&(u.includes('.m3u8')||u.includes('playlist')||u.includes('/live')||u.includes('stream'))){
+        const h=new Hls({enableWorker:false,manifestLoadingTimeOut:4000,levelLoadingTimeOut:4000,fragLoadingTimeOut:4000});
+        h.loadSource(u);h.attachMedia(vid);
+        h.on(Hls.Events.MANIFEST_PARSED,()=>{fin(true);h.destroy();});
+        h.on(Hls.Events.ERROR,(_,d)=>{if(d.fatal){h.destroy();fin(false);}});
+      }else{vid.src=u;vid.load();}
+    });
+  }
+
+  for(let i=0;i<rawList.length;i+=BATCH){
+    if(VABORT)return;
+    const batch=rawList.slice(i,i+BATCH);
+    const res=await Promise.all(batch.map(ch=>testStream(ch)));
+    res.forEach((ok,j)=>{VTOTAL++;if(ok&&!VABORT){ALL.push(batch[j]);}});
+    setProgress(VTOTAL,rawList.length,ALL.length);
+    updateStat();
+    if(ALL.length>0&&!VABORT){applyFilter();renderCats(ALL);renderCatStrip(ALL);}
+  }
+
+  if(VABORT)return;
+  pw.classList.remove('show');
+  applyFilter();renderCats(ALL);renderCatStrip(ALL);
+  const n=ALL.length;
+  toast(`${CUR.f} ${cl(CUR)} — ${n} canais ativos`,n>0?'ok':'err');
+  if(n===0){document.getElementById('grid').innerHTML=`<div class="sbox"><div class="ico">📡</div><p>Nenhum stream disponível agora.<br><small>Tenta outro país ou volta mais tarde.</small></p></div>`;}
+  updateStat();
+}
+
+function setProgress(done,total,found){
+  const pct=total?Math.round((done/total)*100):0;
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progTxt').textContent=`A verificar… ${found} ativos encontrados`;
+  document.getElementById('progPct').textContent=pct+'%';
+}
+
+// ═══════════════════════
+// CATEGORY MATCH
+// ═══════════════════════
+function mCat(ch,id){
+  if(id==='all')return true;
+  const g=(ch.group||'').toLowerCase(),n=(ch.name||'').toLowerCase(),h=s=>g.includes(s)||n.includes(s);
+  const map={
+    news:['news','noticias','notícias','info','actualit','nachrichten'],
+    sport:['sport','deport','esport','futebol','football','soccer','tennis','basket','rugby','cricket','f1','nba','nfl'],
+    kids:['kid','child','infant','junior','cartoon','disney','baby','toon','boomerang'],
+    music:['music','música','musica','mtv','hits','radio','rádio','beats'],
+    documentary:['doc','natur','discovery','history','national geo','arte'],
+    religious:['religi','faith','church','catol','islam','gospel','christian','ewtn'],
+    entertainment:['entertain','general','variedade','comedy','variety','lifestyle'],
+    cooking:['cook','food','culin','gastro','chef'],
+    travel:['travel','viagem','tourism','explore','adventure'],
+  };
+  return (map[id]||[]).some(s=>h(s));
+}
+
+// ═══════════════════════
+// FILTER & RENDER
+// ═══════════════════════
+function applyFilter(){
+  let ch=[...ALL];
+  if(CAT!=='all')ch=ch.filter(c=>mCat(c,CAT));
+  if(SQ){const q=SQ.toLowerCase();ch=ch.filter(c=>c.name.toLowerCase().includes(q)||(c.group||'').toLowerCase().includes(q));}
+  // Remove broken
+  ch=ch.filter(c=>!BROKEN.has(c.url));
+  FILT=ch;renderGrid();
+}
+
+function onSearch(){SQ=document.getElementById('srch').value;applyFilter();}
+
+function showLoading(){
+  document.getElementById('grid').innerHTML=`<div class="sbox"><div class="spin"></div><p>A carregar canais…</p></div>`;
+}
+
+function renderGrid(){
+  const grid=document.getElementById('grid');
+  if(!FILT.length&&ALL.length>0){
+    grid.innerHTML=`<div class="sbox"><div class="ico">🔍</div><p>Sem canais nesta categoria.</p></div>`;return;
+  }
+  if(!FILT.length)return;
+  grid.innerHTML=FILT.map(ch=>{
+    const idx=ALL.indexOf(ch),pl=idx===PLAYING;
+    const logo=ch.logo
+      ?`<img src="${e(ch.logo)}" alt="${e(ch.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fb" style="display:none">${e(ch.name)}</div>`
+      :`<div class="fb">${e(ch.name)}</div>`;
+    return `<div class="chCard${pl?' playing':''}" onclick="play(${idx})">
+      <div class="thumb">${logo}<div class="ltag">LIVE</div><div class="phov">▶</div></div>
+      <div class="chInfo"><div class="chName">${e(ch.name)}</div><div class="chGrp">${e(ch.group||'')}</div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderCats(channels){
+  const cnt={};
+  for(const ch of channels)for(const cat of CATS){if(cat.id==='all')continue;if(mCat(ch,cat.id))cnt[cat.id]=(cnt[cat.id]||0)+1;}
+  document.getElementById('catList').innerHTML=CATS
+    .filter(cat=>cat.id==='all'||(cnt[cat.id]||0)>0)
+    .map(cat=>`<div class="ci${CAT===cat.id?' active':''}" onclick="setCat('${cat.id}')">
+      <span class="ico">${cat.i}</span><span>${t(cat)}</span>
+      <span class="cnt">${cat.id==='all'?channels.length:(cnt[cat.id]||'')}</span>
+    </div>`).join('');
+}
+
+function renderCatStrip(channels){
+  const cnt={};
+  for(const ch of channels)for(const cat of CATS){if(cat.id==='all')continue;if(mCat(ch,cat.id))cnt[cat.id]=(cnt[cat.id]||0)+1;}
+  const strip=document.getElementById('catStrip');
+  strip.innerHTML=CATS
+    .filter(cat=>cat.id==='all'||(cnt[cat.id]||0)>0)
+    .map(cat=>`<button class="csBtn${CAT===cat.id?' active':''}" onclick="setCat('${cat.id}')">
+      ${cat.i} ${t(cat)}${cat.id!=='all'&&cnt[cat.id]?` <span style="opacity:.6;font-size:9px">${cnt[cat.id]}</span>`:''}
+    </button>`).join('');
+}
+
+function setCat(id){CAT=id;renderCats(ALL);renderCatStrip(ALL);applyFilter();}
+
+function updateStat(){
+  const n=ALL.length,total=VPEND||0,done=VTOTAL||0;
+  const verifying=done>0&&done<total;
+  const tags=Object.entries(SST).map(([l,s])=>`<span class="stag ${s}">${l}</span>`).join('');
+  const ct=verifying?`${n} ativos · ${done}/${total}`:n?`✓ ${n} canais`:'';
+  document.getElementById('statBar').innerHTML=tags+`<span id="chCount">${ct}</span>`;
+}
+
+// ═══════════════════════
+// PLAYER
+// ═══════════════════════
+function play(idx){
+  const ch=ALL[idx];if(!ch)return;
+  PLAYING=idx;PFILT=FILT.indexOf(ch);CURL=ch.url;
+  document.getElementById('nowN').textContent=ch.name;
+  document.getElementById('cpNow').style.display='block';
+  document.getElementById('cpNowName').textContent=ch.name;
+  document.getElementById('cpUrl').textContent=ch.url;
+  document.getElementById('urlDisp').textContent=ch.url;
+  const bar=document.getElementById('playerBar');
+  bar.classList.remove('hidden');bar.classList.add('visible');
+  document.getElementById('errOvl').classList.remove('show');
+
+  // Touch — show overlay on tap
+  bar.ontouchend=()=>{bar.classList.add('touch-active');setTimeout(()=>bar.classList.remove('touch-active'),2500);};
+
+  const vid=document.getElementById('vid');
+  if(HLS_I){HLS_I.destroy();HLS_I=null;}
+  vid.src='';
+  let errT=setTimeout(()=>onErr(idx),12000);
+  vid.oncanplay=vid.onplaying=()=>clearTimeout(errT);
+
+  if(window.Hls&&Hls.isSupported()){
+    HLS_I=new Hls({enableWorker:true,lowLatencyMode:true,maxBufferLength:20,manifestLoadingTimeOut:8000,levelLoadingTimeOut:8000,fragLoadingTimeOut:10000});
+    HLS_I.loadSource(ch.url);HLS_I.attachMedia(vid);
+    HLS_I.on(Hls.Events.MANIFEST_PARSED,()=>{clearTimeout(errT);vid.play().catch(()=>{});});
+    HLS_I.on(Hls.Events.ERROR,(_,d)=>{if(d.fatal){clearTimeout(errT);onErr(idx);}});
+  }else if(vid.canPlayType('application/vnd.apple.mpegurl')){
+    vid.src=ch.url;vid.onerror=()=>{clearTimeout(errT);onErr(idx);};vid.play().catch(()=>{});
+  }else{
+    vid.src=ch.url;vid.onerror=()=>{clearTimeout(errT);onErr(idx);};vid.play().catch(()=>{});
+  }
+  renderGrid();
+}
+
+function onErr(idx){
+  const ch=ALL[idx];if(!ch)return;
+  BROKEN.add(ch.url);
+  const pos=ALL.indexOf(ch);if(pos>-1)ALL.splice(pos,1);
+  document.getElementById('errOvl').classList.add('show');
+  applyFilter();renderCats(ALL);renderCatStrip(ALL);
+  setTimeout(()=>{if(PLAYING===idx)tryNext();},1500);
+}
+
+function tryNext(){
+  const start=PFILT;
+  for(let i=1;i<=FILT.length;i++){
+    const ni=(start+i)%FILT.length;
+    const nch=FILT[ni];
+    if(nch&&!BROKEN.has(nch.url)){play(ALL.indexOf(nch));return;}
+  }
+  toast('Sem mais streams nesta categoria','err');
+}
+
+function closePl(){
+  if(HLS_I){HLS_I.destroy();HLS_I=null;}
+  const vid=document.getElementById('vid');
+  vid.pause();vid.src='';vid.onerror=null;vid.oncanplay=null;vid.onplaying=null;
+  document.getElementById('playerBar').classList.remove('visible');
+  document.getElementById('playerBar').classList.add('hidden');
+  document.getElementById('errOvl').classList.remove('show');
+  PLAYING=-1;CURL='';
+  document.getElementById('cpNow').style.display='none';
+  renderGrid();
+}
+
+function doFullscreen(){
+  const vid=document.getElementById('vid');
+  if(vid.requestFullscreen)vid.requestFullscreen();
+  else if(vid.webkitRequestFullscreen)vid.webkitRequestFullscreen();
+  else if(vid.webkitEnterFullscreen)vid.webkitEnterFullscreen();
+}
+
+// ═══════════════════════
+// CAST
+// ═══════════════════════
+function toggleCast(){
+  CAST=!CAST;
+  document.getElementById('castPanel').classList.toggle('open',CAST);
+  document.getElementById('castBtn').classList.toggle('on',CAST);
+  document.getElementById('bnTV').classList.toggle('active',CAST);
+}
+
+function tryChromecast(){
+  const vid=document.getElementById('vid');
+  if(vid.remote&&vid.remote.prompt)vid.remote.prompt().catch(()=>{});
+  else toast('Chrome → Menu → Transmitir… ou ícone cast no vídeo','');
+}
+
+function tryAirplay(){
+  const vid=document.getElementById('vid');
+  if(vid.webkitShowPlaybackTargetPicker)vid.webkitShowPlaybackTargetPicker();
+  else toast('AirPlay disponível em Safari iPhone/Mac','');
+}
+
+function openVLC(){
+  if(!CURL){toast('Abre um canal primeiro','err');return;}
+  window.location.href='vlc://'+CURL;
+}
+
+function copyUrl(){
+  const url=CURL||document.getElementById('urlDisp').textContent;
+  if(!url||url==='Seleciona um canal primeiro'){toast('Abre um canal primeiro','err');return;}
+  navigator.clipboard.writeText(url).then(()=>toast('URL copiado ✓','ok')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}ta.remove();
+    toast('URL copiado ✓','ok');
+  });
+}
+
+function copyM3U(){
+  const url=`https://iptv-org.github.io/iptv/countries/${CUR?CUR.c:'pt'}.m3u`;
+  navigator.clipboard.writeText(url).then(()=>toast('Lista M3U copiada ✓','ok')).catch(()=>toast('Erro ao copiar','err'));
+}
+
+// ═══════════════════════
+// MODAL
+// ═══════════════════════
+let MF='';
+function openModal(){MF='';document.getElementById('msrch').value='';document.getElementById('modal').classList.add('open');renderCoList();setTimeout(()=>document.getElementById('msrch').focus(),100);}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+function filterCo(){MF=document.getElementById('msrch').value.toLowerCase();renderCoList();}
+function renderCoList(){
+  const list=COUNTRIES.filter(c=>!MF||c.en.toLowerCase().includes(MF)||c.pt.toLowerCase().includes(MF)||c.c.includes(MF));
+  document.getElementById('cList').innerHTML=list.map(co=>`<div class="coOpt${CUR&&CUR.c===co.c?' sel':''}" onclick="selectCo('${co.c}')"><span class="fl">${co.f}</span><span class="cn">${cl(co)}</span></div>`).join('');
+}
+function selectCo(code){setCountry(code,false);loadCountry();}
+document.getElementById('modal').addEventListener('click',ev=>{if(ev.target===document.getElementById('modal'))closeModal();});
+
+// ═══════════════════════
+// MOBILE TAB
+// ═══════════════════════
+function mobileTab(tab){
+  document.querySelectorAll('.bnBtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('bn'+tab.charAt(0).toUpperCase()+tab.slice(1))?.classList.add('active');
+}
+
+// ═══════════════════════
+// TOAST
+// ═══════════════════════
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast show '+type;
+  clearTimeout(TT);TT=setTimeout(()=>el.classList.remove('show'),3200);
+}
+
+function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ═══════════════════════
+// INIT
+// ═══════════════════════
+(function(){
+  dLang();
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js';
+  s.onload=dCountry;s.onerror=dCountry;
+  document.head.appendChild(s);
+})();
+</script>
+</body>
+</html>
